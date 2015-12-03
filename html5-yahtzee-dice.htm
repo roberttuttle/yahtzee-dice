@@ -1,0 +1,293 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Yahtzee Dice</title>
+	<meta name="viewport" content="width=1200, user-scalable=no">
+	<style type="text/css">
+		* {
+			font-family: sans-serif;
+		}
+		html, body {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			width: 100%;
+			height: 100%;
+			margin: 0;
+			padding: 0;
+			touch-action: none;	
+			background-color: #000000;
+			color: #FFFFFF;	
+		}
+		main {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+		}
+		#dice {
+			flex: 0 1 auto;
+			display: flex;
+			flex-direction: row;
+			flex-wrap: nowrap;
+			justify-content: flex-start;
+			align-items: flex-start;
+			margin: 3em 0;
+		}
+		.die {
+			position: relative;
+			width: 128px;
+			height: 128px;
+			-webkit-perspective: 1200px;
+			perspective: 1200px;
+			margin: 0 2em;
+			transition: transform 150ms ease-out;
+		}
+		.die.selected, #dice.reset > .die  {
+			transform: translateY(-72px);
+		}
+		.die > .faces {
+			position: absolute;
+			width: 100%;
+			height: 100%;	
+			-webkit-transform-style: preserve-3d;
+			transform-style: preserve-3d;
+			-webkit-transition: -webkit-transform 250ms ease;
+			transition: transform 250ms ease;
+			-webkit-transform: translateZ(-64px);
+			transform: translateZ(-64px);
+		}
+		.die[data-value='1'] > .faces {
+			-webkit-transform: rotateX(0deg);
+			transform: rotateX(0deg);
+		}
+		.die[data-value='2'] > .faces {
+			-webkit-transform: rotateX(90deg);
+			transform: rotateX(90deg);
+		}
+		.die[data-value='3'] > .faces {
+			-webkit-transform: rotateY(-90deg);
+			transform: rotateY(-90deg);
+		}
+		.die[data-value='4'] > .faces {
+			-webkit-transform: rotateY(90deg);
+			transform: rotateY(90deg);
+		}
+		.die[data-value='5'] > .faces {
+			-webkit-transform: rotateX(-90deg);
+			transform: rotateX(-90deg);
+		}
+		.die[data-value='6'] > .faces {
+			-webkit-transform: rotateX(-180deg);
+			transform: rotateX(-180deg);
+		}
+		.die > .faces > div {
+			position: absolute;
+			width: 128px;
+			height: 128px;
+		}
+		.die > .faces > div:nth-child(1) {
+			-webkit-transform: rotateX(0deg) translateZ(64px);
+			transform: rotateX(0deg) translateZ(64px);
+		}
+		.die > .faces > div:nth-child(2) {
+			-webkit-transform: rotateX(-90deg) translateZ(64px);
+			transform: rotateX(-90deg) translateZ(64px);
+		}
+		.die > .faces > div:nth-child(3) {
+			-webkit-transform: rotateY(90deg) translateZ(64px);
+			transform: rotateY(90deg) translateZ(64px);
+		}
+		.die > .faces > div:nth-child(4) {
+			-webkit-transform: rotateY(-90deg) translateZ(64px);
+			transform: rotateY(-90deg) translateZ(64px);
+		}
+		.die > .faces > div:nth-child(5) {
+			-webkit-transform: rotateX(90deg) translateZ(64px);
+			transform: rotateX(90deg) translateZ(64px);
+		}
+		.die > .faces > div:nth-child(6) {
+			-webkit-transform: rotateX(-180deg) translateZ(64px);
+			transform: rotateX(-180deg) translateZ(64px);
+		}
+		.die > .faces > div > svg {
+			width: 128px;
+			height: 128px;
+			background-color: #FFFFFF;
+			fill: #000000;
+		}
+		#controls {
+			display: flex;
+			flex-direction: row;
+			justify-content: flex-start;
+			align-items: flex-start;
+			margin-top: 2em;
+		}
+		button {
+			width: 10em;
+			margin: 0 1em;
+			padding: 1em 0;
+			border: 5px solid #FFFFFF;
+			background-color: #000000;
+			color: #FFFFFF;
+			font-size: 200%;
+			font-weight: bold;
+			transition: opacity 250ms ease-out;
+		}
+		button:active {
+			background-color: #FFFFFF;
+			color: #000000;
+		}
+		button:disabled {
+			opacity: .1;
+		}	
+	</style>
+</head>
+<body>
+	<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+		<symbol id="die-face-0" viewBox="0 0 128 128">
+			<path d=""></path>
+		</symbol>
+		<symbol id="die-face-1" viewBox="0 0 128 128">
+			<circle cx="64" cy="64" r="14"></circle>
+		</symbol>
+		<symbol id="die-face-2" viewBox="0 0 128 128">
+			<circle cx="28" cy="28" r="14"></circle>
+			<circle cx="100" cy="100" r="14"></circle>
+		</symbol>
+		<symbol id="die-face-3" viewBox="0 0 128 128">
+			<circle cx="28" cy="28" r="14"></circle>
+			<circle cx="64" cy="64" r="14"></circle>
+			<circle cx="100" cy="100" r="14"></circle>
+		</symbol>
+		<symbol id="die-face-4" viewBox="0 0 128 128">
+			<circle cx="28" cy="28" r="14"></circle>
+			<circle cx="100" cy="28" r="14"></circle>
+			<circle cx="28" cy="100" r="14"></circle>
+			<circle cx="100" cy="100" r="14"></circle>
+		</symbol>
+		<symbol id="die-face-5" viewBox="0 0 128 128">
+			<circle cx="28" cy="28" r="14"></circle>
+			<circle cx="100" cy="28" r="14"></circle>
+			<circle cx="64" cy="64" r="14"></circle>
+			<circle cx="28" cy="100" r="14"></circle>
+			<circle cx="100" cy="100" r="14"></circle>
+		</symbol>
+		<symbol id="die-face-6" viewBox="0 0 128 128">
+			<circle cx="28" cy="28" r="14"></circle>
+			<circle cx="64" cy="28" r="14"></circle>
+			<circle cx="100" cy="28" r="14"></circle>
+			<circle cx="28" cy="100" r="14"></circle>
+			<circle cx="64" cy="100" r="14"></circle>
+			<circle cx="100" cy="100" r="14"></circle>
+		</symbol>
+	</svg>
+	<main>		
+		<div id="dice">
+			<div class="die">
+				<div class="faces">
+					<div><svg><use xlink:href="#die-face-1"></use></svg></div>
+					<div><svg><use xlink:href="#die-face-2"></use></svg></div>
+					<div><svg><use xlink:href="#die-face-3"></use></svg></div>
+					<div><svg><use xlink:href="#die-face-4"></use></svg></div>
+					<div><svg><use xlink:href="#die-face-5"></use></svg></div>
+					<div><svg><use xlink:href="#die-face-6"></use></svg></div>
+				</div>
+			</div>
+		</div>
+		<div id="controls"><button id="roll-button" onclick="rollDice()">ROLL (0)</button><button onclick="resetTurn()">RESET</button></div>
+	</main>
+	<script>
+		var NUM_DICE = 5;
+		var NUM_ROLLS = 3;
+
+		var dice = new Array(NUM_DICE);
+		var roll = 0;
+
+		init();
+
+		function init() {
+			var template = document.getElementById("dice").children[0].cloneNode(true);
+			document.getElementById("dice").children[0].remove();		
+			for (var i = 0, ic = dice.length; i < ic; i += 1) {
+				var element = template.cloneNode(true);
+				document.getElementById("dice").appendChild(element);
+				element.dataset.index = i;
+				element.dataset.value = getRandomDieValue();			
+				element.addEventListener("click", function(e) {
+					toggleDieSelection(this.dataset.index);
+				});
+				dice[i] = { 
+					element: element, 
+					value: element.dataset.value, 
+					isSelected: false 
+				};
+			}
+			resetTurn();
+		}
+		
+		function rollDice() {
+			Array.prototype.forEach.call(document.querySelectorAll("#controls button"), function(e) {
+				e.setAttribute("disabled", true);
+			});
+			if (roll === 0) {
+				document.getElementById("dice").classList.remove("reset");
+			}
+			var rolling = setInterval(function () {
+				for (var i = 0, ic = dice.length; i < ic; i += 1) {
+					if (!dice[i].isSelected) {
+						dice[i].element.dataset.value = getRandomDieValue();
+					}
+				}
+			}, 200);
+			setTimeout(function() {
+				clearInterval(rolling);
+				for (var i = 0, ic = dice.length; i < ic; i += 1) {
+					if (!dice[i].isSelected) {
+						dice[i].value = getRandomDieValue();
+						dice[i].element.dataset.value = dice[i].value;
+					}
+				}
+				Array.prototype.forEach.call(document.querySelectorAll("#controls button"), function(e) {
+					e.removeAttribute("disabled");
+				});
+				roll++;
+				updateRollButton();
+			}, 1000);
+		}
+		
+		function resetTurn() {
+			roll = 0;
+			updateRollButton();
+			for (var i = 0, ic = dice.length; i < ic; i += 1) {
+				dice[i].isSelected = false;
+				dice[i].element.classList.remove("selected");
+			}
+			document.getElementById("dice").classList.add("reset");
+		}
+		
+		function toggleDieSelection(i) {
+			if (roll > 0) {
+				dice[i].isSelected = !dice[i].isSelected;
+				dice[i].element.classList.toggle("selected");
+			}
+		}
+		
+		function updateRollButton() {
+			var rollButton = document.getElementById("roll-button");
+			rollButton.innerText = rollButton.innerText.replace(/\d/, (NUM_ROLLS - roll));
+			if (roll === NUM_ROLLS) {
+				rollButton.setAttribute("disabled", true);
+			} else {
+				rollButton.removeAttribute("disabled");
+			}
+		}
+		
+		function getRandomDieValue() {
+			return Math.floor((Math.random() * 6) + 1);
+		}
+	</script>
+</body>
+</html>
